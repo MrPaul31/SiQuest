@@ -1,0 +1,8 @@
+
+/siquestbackend/node_modules
+/siquestfrontend/node_modules
+siquestbackend/src/server.log
+siquestfrontend/Dockerfile.save
+siquestfrontend/package-lock.json
+siquestfrontend/README.md
+siquestfrontend/src/App.js.save
