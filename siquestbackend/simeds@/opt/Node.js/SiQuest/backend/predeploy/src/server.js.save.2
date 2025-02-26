@@ -1,0 +1,20 @@
+
+const express = require('express');
+const cors = require('cors');
+const routes = require('./routes');
+
+const app = express();
+const PORT = process.env.PORT || 5002;
+
+// MIDDLEWARE
+app.use(express.json());
+app.use(express.urlencoded({ extended: true })); // For parsing application/x-www-form-urlencoded
+
+origin: 'http://questionari.centrochirurgicotoscano.it:3000',
+    credentials: true // Necessary for cookies/auth headers
+// Use routes
+app.use('/', routes);
+
+app.listen(PORT, "0.0.0.0", () => {
+  console.log(`Server running on port ${PORT}`);
+});

@@ -1,0 +1,69 @@
+[04/02/2025  9:07:10.49]  
+ssh_dispatch_run_fatal: Connection to 192.168.5.35 port 22: Connection timed out
+OpenSSH_for_Windows_9.5p1, LibreSSL 3.8.2
+debug1: Reading configuration data C:\\Users\\plups/.ssh/config
+debug1: C:\\Users\\plups/.ssh/config line 1: Applying options for 192.168.5.35
+debug1: Connecting to 192.168.5.35 [192.168.5.35] port 22.
+debug1: fd 3 clearing O_NONBLOCK
+debug1: Connection established.
+debug1: identity file C:\\Users\\plups\\.ssh\\id_rsa type 0
+debug1: identity file C:\\Users\\plups\\.ssh\\id_rsa-cert type -1
+debug1: Local version string SSH-2.0-OpenSSH_for_Windows_9.5
+debug1: Remote protocol version 2.0, remote software version OpenSSH_9.6p1 Ubuntu-3ubuntu13.5
+debug1: compat_banner: match: OpenSSH_9.6p1 Ubuntu-3ubuntu13.5 pat OpenSSH* compat 0x04000000
+debug1: Authenticating to 192.168.5.35:22 as 'simeds'
+debug1: load_hostkeys: fopen C:\\Users\\plups/.ssh/known_hosts2: No such file or directory
+debug1: load_hostkeys: fopen __PROGRAMDATA__\\ssh/ssh_known_hosts: No such file or directory
+debug1: load_hostkeys: fopen __PROGRAMDATA__\\ssh/ssh_known_hosts2: No such file or directory
+debug1: SSH2_MSG_KEXINIT sent
+debug1: SSH2_MSG_KEXINIT received
+debug1: kex: algorithm: curve25519-sha256
+debug1: kex: host key algorithm: ssh-ed25519
+debug1: kex: server->client cipher: chacha20-poly1305@openssh.com MAC: <implicit> compression: none
+debug1: kex: client->server cipher: chacha20-poly1305@openssh.com MAC: <implicit> compression: none
+debug1: expecting SSH2_MSG_KEX_ECDH_REPLY
+debug1: SSH2_MSG_KEX_ECDH_REPLY received
+debug1: Server host key: ssh-ed25519 SHA256:uceBV0fEfTcnLO7HIDr02OplpGNjmfXp433MmrnK+Oo
+debug1: load_hostkeys: fopen C:\\Users\\plups/.ssh/known_hosts2: No such file or directory
+debug1: load_hostkeys: fopen __PROGRAMDATA__\\ssh/ssh_known_hosts: No such file or directory
+debug1: load_hostkeys: fopen __PROGRAMDATA__\\ssh/ssh_known_hosts2: No such file or directory
+debug1: Host '192.168.5.35' is known and matches the ED25519 host key.
+debug1: Found key in C:\\Users\\plups/.ssh/known_hosts:4
+debug1: ssh_packet_send2_wrapped: resetting send seqnr 3
+debug1: rekey out after 134217728 blocks
+debug1: SSH2_MSG_NEWKEYS sent
+debug1: expecting SSH2_MSG_NEWKEYS
+debug1: ssh_packet_read_poll2: resetting read seqnr 3
+debug1: SSH2_MSG_NEWKEYS received
+debug1: rekey in after 134217728 blocks
+debug1: get_agent_identities: ssh_get_authentication_socket: No such file or directory
+debug1: Will attempt key: C:\\Users\\plups\\.ssh\\id_rsa RSA SHA256:UJAgkEEWX+C5i5yP87we/i2erkt3lGPKxA/t7pM8iBM explicit
+debug1: SSH2_MSG_EXT_INFO received
+debug1: kex_input_ext_info: server-sig-algs=<ssh-ed25519,ecdsa-sha2-nistp256,ecdsa-sha2-nistp384,ecdsa-sha2-nistp521,sk-ssh-ed25519@openssh.com,sk-ecdsa-sha2-nistp256@openssh.com,rsa-sha2-512,rsa-sha2-256>
+debug1: kex_ext_info_check_ver: publickey-hostbound@openssh.com=<0>
+debug1: kex_ext_info_check_ver: ping@openssh.com=<0>
+debug1: SSH2_MSG_SERVICE_ACCEPT received
+debug1: Authentications that can continue: publickey,password
+debug1: Next authentication method: publickey
+debug1: Offering public key: C:\\Users\\plups\\.ssh\\id_rsa RSA SHA256:UJAgkEEWX+C5i5yP87we/i2erkt3lGPKxA/t7pM8iBM explicit
+debug1: Server accepts key: C:\\Users\\plups\\.ssh\\id_rsa RSA SHA256:UJAgkEEWX+C5i5yP87we/i2erkt3lGPKxA/t7pM8iBM explicit
+Authenticated to 192.168.5.35 ([192.168.5.35]:22) using "publickey".
+debug1: channel 0: new session [client-session] (inactive timeout: 0)
+debug1: Requesting no-more-sessions@openssh.com
+debug1: Entering interactive session.
+debug1: pledge: filesystem
+debug1: client_input_global_request: rtype hostkeys-00@openssh.com want_reply 0
+debug1: client_input_hostkeys: searching C:\\Users\\plups/.ssh/known_hosts for 192.168.5.35 / (none)
+debug1: client_input_hostkeys: searching C:\\Users\\plups/.ssh/known_hosts2 for 192.168.5.35 / (none)
+debug1: client_input_hostkeys: hostkeys file C:\\Users\\plups/.ssh/known_hosts2 does not exist
+debug1: client_input_hostkeys: no new or deprecated keys from server
+debug1: Remote: /home/simeds/.ssh/authorized_keys:2: key options: agent-forwarding port-forwarding pty user-rc x11-forwarding
+debug1: Remote: /home/simeds/.ssh/authorized_keys:2: key options: agent-forwarding port-forwarding pty user-rc x11-forwarding
+debug1: Sending command: bash -c 'find /opt/NodeJS/SiQuest/backend/predeploy -mindepth 1 -type f -delete; find /opt/NodeJS/SiQuest/backend/predeploy/src -mindepth 1 -type f -delete'
+debug1: pledge: fork
+debug1: client_input_channel_req: channel 0 rtype exit-status reply 0
+debug1: client_input_channel_req: channel 0 rtype eow@openssh.com reply 0
+debug1: channel 0: free: client-session, nchannels 1
+Transferred: sent 2980, received 3044 bytes, in 0.6 seconds
+Bytes per second: sent 5191.6, received 5303.1
+debug1: Exit status 0
