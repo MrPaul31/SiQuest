@@ -13,7 +13,7 @@ const DataFetcher = ({ tableName, title, body = { filtro: {} },descrizione }) =>
     const fetchData = async () => {
       try {
   
-        const response = await endpoint.post('/dataHandling/risposteQuestionari', {
+        const response = await endpoint.post('/api/dataHandling/risposteQuestionari', {
           tableName,
           ...stableBody,
         });

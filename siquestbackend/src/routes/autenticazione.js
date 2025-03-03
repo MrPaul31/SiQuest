@@ -3,7 +3,6 @@ const router = express.Router();
 const db = require('../connect');
 const bcrypt = require('bcrypt');
 
-const validateSession = require('../utility').validateSession;
 // ...existing code such as the POST /utenteIns route...
 
 router.post('/utenteIns', async (req, res) => {
@@ -183,10 +182,10 @@ router.post('/register', async (req, res) => {
 });
 
 router.post('/login', async (req, res) => {
-  console.log('Richiesta di login:', req.body);
   try {
     const { username, password } = req.body;
-
+console.log('Username:', username);
+console.log ('Password:', password);
     // Verifico se i campi sono stati inseriti
     if (!username || !password) {
       return res.status(400).json({ message: 'Nome utente e password sono obbligatori' });
@@ -194,7 +193,7 @@ router.post('/login', async (req, res) => {
 
     // Trovo l'utente
     const findUserQuery = `
-      SELECT UTE_Id_Utenti, UTE_Password, UTE_DurataSessione 
+      SELECT UTE_Id_Utenti, UTE_Password, UTE_DurataSessione, UTE_StatoRecord 
       FROM ANS_Utenti 
       WHERE UTE_NomeUtente = ?
     `;
@@ -211,42 +210,92 @@ router.post('/login', async (req, res) => {
         return res.status(401).json({ message: 'Nome utente o password errati' });
       }
 
-      const { UTE_Id_Utenti: userId, UTE_Password: hashedPassword, UTE_DurataSessione: sessionDuration } = userResults[0];
+      const { UTE_Id_Utenti: userId, UTE_Password: hashedPassword, UTE_DurataSessione: sessionDuration, UTE_StatoRecord: statoRecord } = userResults[0];
+      
+      // Verifica se l'utente è attivo
+      if (statoRecord !== 'A') {
+        console.error(`Tentativo di accesso da utente con stato ${statoRecord}`);
+        return res.status(401).json({ message: 'Utente non attivo' });
+      }
+
+      // Log per diagnostica
+      console.log('Stored hash:', hashedPassword);
+      console.log('Session duration:', sessionDuration);
+      
       const passwordMatch = await bcrypt.compare(password, hashedPassword);
+      console.log('Password match result:', passwordMatch);
 
       if (!passwordMatch) {
         return res.status(401).json({ message: 'Nome utente o password errati' });
       }
 
-      const timestamp = Date.now();
-      const clientIp = req.ip;
-      const sessionString = `${username}|${clientIp}|${timestamp}`;
-      const token = Buffer.from(sessionString).toString('base64');
-
-      // Calcolo della fine validità
-      const sessionDurationMinutes = sessionDuration || 30; // Durata della sessione in minuti
-      const fineValidita = new Date(Date.now() + sessionDurationMinutes * 60000); // Data di scadenza
-
-      // Inserimento della sessione nel database
-      const insertSessionQuery = `
-        INSERT INTO ANS_Sessioni (
-          SSN_Sessione, 
-          SSN_InizioValidita, 
-          SSN_FineValidita, 
-          SSN_Utente, 
-          SSN_Terminale,
-          SSN_StatoRecord
-        )
-        VALUES (?, NOW(), ?, ?, ?, ?)
+      // Check if MULTISESSIONE parameter is set to 'S'
+      const checkMultiSessionQuery = `
+        SELECT PAR_Descrizione 
+        FROM ANS_Parametri 
+        WHERE PAR_Codice = 'MULTISESSIONE'
       `;
 
-      db.query(insertSessionQuery, [token, fineValidita, userId, clientIp, "A"], (err) => {
+      db.query(checkMultiSessionQuery, async (err, sessionResults) => {
         if (err) {
-          console.error('Errore durante l\'inserimento della sessione:', err);
+          console.error('Errore durante la verifica del parametro MULTISESSIONE:', err);
           return res.status(500).json({ message: 'Errore interno del server' });
         }
 
-        return res.status(200).json({ message: 'Accesso effettuato con successo', token });
+        const multiSession = sessionResults.length > 0 && sessionResults[0].PAR_Descrizione === 'S';
+        
+        // If MULTISESSIONE is set to 'S', delete all existing sessions for this user
+        if (multiSession) {
+          const deletePreviousSessionsQuery = `
+            DELETE FROM ANS_Sessioni 
+            WHERE SSN_Utente = ?
+          `;
+          
+          await new Promise((resolve, reject) => {
+            db.query(deletePreviousSessionsQuery, [userId], (err) => {
+              if (err) {
+                console.error('Errore durante la cancellazione delle sessioni precedenti:', err);
+                reject(err);
+              } else {
+                resolve();
+              }
+            });
+          }).catch(err => {
+            return res.status(500).json({ message: 'Errore durante la gestione delle sessioni' });
+          });
+        }
+
+        // Create new session token
+        const timestamp = Date.now();
+        const clientIp = req.ip;
+        const sessionString = `${username}|${clientIp}|${timestamp}`;
+        const token = Buffer.from(sessionString).toString('base64');
+
+        // Calcolo della fine validità
+        const sessionDurationMinutes = sessionDuration || 30; // Durata della sessione in minuti
+        const fineValidita = new Date(Date.now() + sessionDurationMinutes * 60000); // Data di scadenza
+
+        // Inserimento della sessione nel database
+        const insertSessionQuery = `
+          INSERT INTO ANS_Sessioni (
+            SSN_Sessione, 
+            SSN_InizioValidita, 
+            SSN_FineValidita, 
+            SSN_Utente, 
+            SSN_Terminale,
+            SSN_StatoRecord
+          )
+          VALUES (?, NOW(), ?, ?, ?, ?)
+        `;
+
+        db.query(insertSessionQuery, [token, fineValidita, userId, clientIp, "A"], (err) => {
+          if (err) {
+            console.error('Errore durante l\'inserimento della sessione:', err);
+            return res.status(500).json({ message: 'Errore interno del server' });
+          }
+
+          return res.status(200).json({ message: 'Accesso effettuato con successo', token });
+        });
       });
     });
   } catch (err) {
@@ -256,9 +305,14 @@ router.post('/login', async (req, res) => {
 });
 
 // Logout
-router.post('/logout', validateSession, async (req, res) => {
+router.post('/logout', async (req, res) => {
   try {
-    const token = req.headers['authorization'].split(' ')[1];
+    const authHeader = req.headers['authorization'];
+    if (!authHeader) {
+      return res.status(401).json({ message: 'Token non fornito' });
+    }
+
+    const token = authHeader.split(' ')[1];
 
     const deleteSessionQuery = `
       DELETE FROM ANS_Sessioni WHERE SSN_Sessione = ?

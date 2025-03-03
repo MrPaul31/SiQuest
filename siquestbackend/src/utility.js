@@ -9,38 +9,19 @@ function logActivity(logFile, logEntry) {
   });
 }
 
-function validateSession(req, res, next) {
-  // Use req.path to ignore query parameters
-  const currentPath = req.path;
-  console.log('Request:', req.method, currentPath);
-
-  // Define open routes (allow an optional "api/" prefix)
-  const openRoutes = [
-    { method: 'POST', path: '/api/login' },
-    { method: 'GET', path: /^\/(api\/)?questionari\/\d+\/?$/ },           // matches "/questionari/1" or "/api/questionari/1"
-    { method: 'POST', path: /^\/(api\/)?questionari\/\d+\/risposte\/?$/ }   // matches "/questionari/1/risposte" or "/api/questionari/1/risposte"
-  ];
-
-  // Check if the current route is open
-  const isOpenRoute = openRoutes.some(route => {
-    if (route.method !== req.method) return false;
-    if (typeof route.path === 'string') {
-      return route.path === currentPath;
-    } else {
-      return route.path.test(currentPath);
-    }
-  });
-
-  if (isOpenRoute) {
-    console.log('Open route detected, bypassing token verification.');
+const validateSession = (req, res, next) => {
+  // Skip validation for authentication routes
+  if (req.originalUrl.startsWith('/api/autenticazione')) {
     return next();
   }
 
-  // Token verification logic...
+  // Log the request for debugging
+  
+  // Token verification logic..
   const authHeader = req.headers['authorization'];
   if (!authHeader || !authHeader.startsWith('Bearer ')) {
     console.warn('Access denied. No token provided.');
-    return res.status(401).json({ message: 'Access denied. No token provided.' });
+    return res.status(401).json({ message: 'Accesso negato. Token non fornito.' });
   }
 
   const token = authHeader.split(' ')[1];
@@ -98,7 +79,7 @@ function validateSession(req, res, next) {
       return next();
     });
   });
-}
+};
 
 module.exports = {
   logActivity,

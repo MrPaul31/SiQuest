@@ -13,8 +13,8 @@ const Tabella = ({ data, tableName, descrizione }) => {
   const [csvDownloading, setCsvDownloading] = useState(false);
   const [domandeMapping, setDomandeMapping] = useState([]);
 
-  const rowHeight = 50; 
-  const maxVisibleRows = 10; 
+  const rowHeight = 30; 
+  const maxVisibleRows = 13; 
 
   // ---------------------------
   // PRIMARY KEY EXTRACTION
@@ -510,7 +510,7 @@ const Tabella = ({ data, tableName, descrizione }) => {
         style={{ height: `${tableHeight}px` }}
       >
         <table className="min-w-full bg-white border border-gray-300 rounded-lg shadow-lg">
-          <thead>
+          <thead className="sticky top-0 z-10">
             <tr className="bg-gradient-to-r from-blue-700 to-blue-500 text-white uppercase tracking-wide text-sm">
               {columnsToDisplay.map((column) =>
                 column.value === 0 ? null : (

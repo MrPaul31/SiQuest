@@ -11,7 +11,6 @@ const validateSession = require('../utility').validateSession;
  * @returns {Array} - Albero delle funzioni filtrato
  */
 function buildTree(treeData, allowedIds) {
-  console.log("buildTree: allowedIds:", [...allowedIds]);
   
   // Create a map for all allowed nodes
   const nodeMap = new Map();
@@ -27,22 +26,18 @@ function buildTree(treeData, allowedIds) {
   treeData.forEach(record => {
     const parentId = record.AFU_Id_Padre;
     const childId = record.AFU_Id_Figlio;
-    console.log(`Processing relationship - Parent: ${parentId}, Child: ${childId}`);
 
     // Only consider the child if it is allowed
     if (allowedIds.has(childId)) {
       // If the parent is allowed and exists in nodeMap, attach the child
       if (allowedIds.has(parentId) && nodeMap.has(parentId)) {
-        console.log(`Attaching child ${childId} to parent ${parentId}`);
         nodeMap.get(parentId).children.push(nodeMap.get(childId));
         childrenSet.add(childId);
       } else {
         // Otherwise, the child is not attached to any allowed parent
-        console.log(`No allowed parent found for child ${childId}`);
         childrenSet.add(childId);
       }
     } else {
-      console.log(`Child ${childId} non presente in allowedIds, saltato`);
     }
   });
 
@@ -53,15 +48,12 @@ function buildTree(treeData, allowedIds) {
       roots.push(node);
     }
   }
-  
-  console.log("buildTree: Risultato roots:", roots);
   return roots;
 }
 
 // Rotta per ottenere il menu (albero filtrato e lista dettagliata delle funzioni)
 router.get('/menu', validateSession, (req, res) => {
   const userGroupId = req.user.UTE_Id_GruppiAbilitazioni;
-  console.log("Menu route: userGroupId:", userGroupId);
 
   const allowedFunctionsQuery = `
     SELECT 
@@ -85,7 +77,6 @@ router.get('/menu', validateSession, (req, res) => {
       console.error('Errore nella query delle funzioni abilitate:', err);
       return res.status(500).json({ message: 'Errore interno del server' });
     }
-    console.log("Menu route: allowedResults:", allowedResults);
 
     // Creiamo un Set degli ID funzione abilitati (quelli che compaiono in ANS_ElencoFunzioni)
     const allowedFunctionIds = new Set(allowedResults.map(r => r.functionId));
@@ -102,15 +93,13 @@ router.get('/menu', validateSession, (req, res) => {
         console.error("Errore nella query dell'albero delle funzioni:", err);
         return res.status(500).json({ message: 'Errore interno del server' });
       }
-      console.log("Menu route: treeData:", treeData);
 
       // Filtriamo l'albero: consideriamo solo i nodi (AFU_Id_Figlio) che sono abilitati
       const filteredTreeData = treeData.filter(record => allowedFunctionIds.has(record.AFU_Id_Figlio));
-      console.log("Menu route: filteredTreeData:", filteredTreeData);
+      
 
       // Costruiamo l'albero gerarchico a partire dal filteredTreeData
       const menuTree = buildTree(filteredTreeData, allowedFunctionIds);
-      console.log("Menu route: menuTree:", menuTree);
 
       // Restituiamo una struttura che contenga sia l'albero che la lista dettagliata delle funzioni
       return res.status(200).json({

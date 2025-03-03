@@ -2,22 +2,15 @@ const express = require('express');
 const router = express.Router();
 const checkOperationPermission = require('../middleware/checkOperationPermission');
 const { readOperation, writeOperations } = require('../utils/crudOperations');
+const bcrypt = require('bcrypt');
 
-// Lista delle tabelle autorizzate
-const allowedTables = [
-  'ANS_Utenti',
-  'ANS_Questionari',
-  'ANS_DomandeQuestionari',
-  'ANS_RisposteQuestionari',
-  'CNF_RisposteProposte',
-  'ANS_TipiDomande',
-  'DOM_TipiDomande'
-];
+// Tabella specifica per gli utenti
+const tableName = 'ANS_Funzioni';
 
 /**
- * Middleware per verificare i permessi in base all'operazione.
+ * Middleware per verificare i permessi specifici per gli utenti
  */
-const permissionMiddleware = (req, res, next) => {
+const userPermissionMiddleware = (req, res, next) => {
   let operationType;
   if (req.body.operation && req.body.operation === 'read') {
     operationType = 'access';
@@ -32,22 +25,13 @@ const permissionMiddleware = (req, res, next) => {
   } else {
     return res.status(400).json({ message: 'Payload non valido' });
   }
-  const functionId = 10;
+  // Function ID specifico per la gestione utenti (cambiare in base alle esigenze)
+  const functionId = 10; 
   return checkOperationPermission([operationType], functionId)(req, res, next);
 };
 
-/**
- * Endpoint CRUD per operazioni dinamiche su una tabella.
- */
-router.post('/crudTabella', permissionMiddleware, async (req, res) => {
-  const { tableName } = req.body;
-  if (!tableName) {
-    return res.status(400).json({ message: 'Nome della tabella mancante' });
-  }
-  if (!allowedTables.includes(tableName)) {
-    return res.status(400).json({ message: 'Nome della tabella non valido' });
-  }
 
+router.post('/users', userPermissionMiddleware, async (req, res) => {
   try {
     // Se l'operazione richiesta è "read"
     if (req.body.operation && req.body.operation === 'read') {
@@ -57,15 +41,17 @@ router.post('/crudTabella', permissionMiddleware, async (req, res) => {
     }
     // Se le operazioni sono create/update/delete
     else if (req.body.changes && Array.isArray(req.body.changes)) {
-      const { changes } = req.body;
+      // Pre-elaborazione dei dati (hash delle password)
+      const processedChanges = preprocessUserData(req.body.changes);
+      
       const requestInfo = {
         ip: req.ip,
         userId: req.user ? req.user.id : 0
       };
       
-      const results = await writeOperations(tableName, changes, requestInfo);
+      const results = await writeOperations(tableName, processedChanges, requestInfo);
       return res.status(200).json({ 
-        message: 'Operazioni eseguite con successo', 
+        message: 'Operazioni su ANS_Funzioni eseguite con successo', 
         results 
       });
     } else {
@@ -74,7 +60,7 @@ router.post('/crudTabella', permissionMiddleware, async (req, res) => {
       });
     }
   } catch (error) {
-    console.error('Errore durante l\'elaborazione della richiesta:', error);
+    console.error('Errore durante l\'elaborazione della richiesta funzioni:', error);
     return res.status(500).json({ error: error.message });
   }
 });

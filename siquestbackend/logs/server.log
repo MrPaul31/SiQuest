@@ -1,0 +1,24 @@
+2025-03-03 09:43:23 info: Server avviato sulla porta 5002
+2025-03-03 09:52:49 info: OPTIONS /api/abilitazioneUtenti/menu 204 2ms - 127.0.0.1
+2025-03-03 09:52:49 info: OPTIONS /api/internalUtenti/users 204 1ms - 127.0.0.1
+2025-03-03 09:52:49 info: GET /api/abilitazioneUtenti/menu 304 45ms - 127.0.0.1
+2025-03-03 09:52:49 info: POST /api/internalUtenti/users 200 50ms - 127.0.0.1
+2025-03-03 10:23:44 info: OPTIONS /api/questionari/1 204 0ms - 127.0.0.1
+2025-03-03 10:23:44 info: GET /api/questionari/1 304 8ms - 127.0.0.1
+2025-03-03 10:34:33 info: OPTIONS /api/abilitazioneUtenti/menu 204 0ms - 127.0.0.1
+2025-03-03 10:34:33 info: OPTIONS /api/questionari/Questionario%20soddisfazione%20pazienti/domandeMapping 204 1ms - 127.0.0.1
+2025-03-03 10:34:33 info: OPTIONS /api/dataHandling/risposteQuestionari 204 1ms - 127.0.0.1
+2025-03-03 10:34:33 info: OPTIONS /api/dataHandling/risposteQuestionari 204 0ms - 127.0.0.1
+2025-03-03 10:34:33 info: OPTIONS /referenceDataSimple?table=ANS_Questionari&idColumn=QUE_IdRif_Questionari&displayField=QUE_Descrizione 204 1ms - 127.0.0.1
+2025-03-03 10:34:33 info: OPTIONS /referenceDataSimple?table=ANS_DomandeQuestionari&idColumn=DQU_IdRif_DomandeQuestionari&displayField=DQU_TestoDomanda 204 1ms - 127.0.0.1
+2025-03-03 10:34:33 info: OPTIONS /referenceDataSimple?table=CNF_RisposteProposte&idColumn=RPR_IdRif_RisposteProposte&displayField=RPR_TestoRisposta 204 0ms - 127.0.0.1
+2025-03-03 10:34:33 info: GET /referenceDataSimple?table=ANS_Questionari&idColumn=QUE_IdRif_Questionari&displayField=QUE_Descrizione 304 19ms - 127.0.0.1
+2025-03-03 10:34:33 info: GET /referenceDataSimple?table=ANS_DomandeQuestionari&idColumn=DQU_IdRif_DomandeQuestionari&displayField=DQU_TestoDomanda 304 30ms - 127.0.0.1
+2025-03-03 10:34:33 info: POST /api/dataHandling/risposteQuestionari 200 39ms - 127.0.0.1
+2025-03-03 10:34:33 info: GET /referenceDataSimple?table=CNF_RisposteProposte&idColumn=RPR_IdRif_RisposteProposte&displayField=RPR_TestoRisposta 304 18ms - 127.0.0.1
+2025-03-03 10:34:33 info: GET /api/questionari/Questionario%20soddisfazione%20pazienti/domandeMapping 304 36ms - 127.0.0.1
+2025-03-03 10:34:33 info: GET /api/abilitazioneUtenti/menu 304 45ms - 127.0.0.1
+2025-03-03 10:34:33 info: POST /api/dataHandling/risposteQuestionari 200 45ms - 127.0.0.1
+2025-03-03 10:34:36 info: OPTIONS /api/internalUtenti/users 204 1ms - 127.0.0.1
+2025-03-03 10:34:36 info: GET /api/abilitazioneUtenti/menu 304 10ms - 127.0.0.1
+2025-03-03 10:34:36 info: POST /api/internalUtenti/users 200 13ms - 127.0.0.1

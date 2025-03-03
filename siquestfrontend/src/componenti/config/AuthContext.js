@@ -29,11 +29,38 @@ endpoint.interceptors.response.use(
       // Only redirect if not already on the login page.
       if (window.location.pathname !== "/login") {
         localStorage.removeItem('token');
+        // Dispatch session expired event
+        window.dispatchEvent(new Event('sessionExpired'));
       }
     }
     return Promise.reject(error);
   }
 );
+
+// Add this array of public routes
+const publicRoutes = [
+  '/login',
+  '/register',
+  '/questionari',  // This will match all /questionari/xxx routes
+  '/conferma'
+];
+
+// Updated helper function to check if current route is public
+const isPublicRoute = (path) => {
+  // Check exact matches first
+  if (publicRoutes.includes(path)) {
+    return true;
+  }
+  
+  // Check for nested routes (like /questionari/123)
+  for (const route of publicRoutes) {
+    if (path.startsWith(route + '/')) {
+      return true;
+    }
+  }
+  
+  return false;
+};
 
 export const AuthContext = createContext();
 
@@ -43,6 +70,17 @@ export const AuthProvider = ({ children }) => {
   const [loading, setLoading] = useState(true);
   const [sessionExpired, setSessionExpired] = useState(false);
   const navigate = useNavigate();
+
+  // Modify the checkToken function
+  const checkToken = () => {
+    const token = localStorage.getItem('token');
+    if (!token) {
+      setIsAuthenticated(false);
+      setSessionExpired(true);
+      return false;
+    }
+    return true;
+  };
 
   // On startup, if a token exists, set the state and attempt to retrieve permissions
   useEffect(() => {
@@ -54,10 +92,47 @@ export const AuthProvider = ({ children }) => {
     setLoading(false);
   }, []);
 
+  // Update the handleSessionExpired function in your useEffect
+  useEffect(() => {
+    // Initial check when component mounts
+    const hasToken = checkToken();
+    if (!hasToken && !isPublicRoute(window.location.pathname)) {
+      alert("Sessione scaduta. Effettuare nuovamente il login.");
+      navigate('/login');
+    }
+    
+    // Function to handle session expiration
+    const handleSessionExpired = () => {
+      setIsAuthenticated(false);
+      setSessionExpired(true);
+      
+      // Only show alert if not on a public route
+      if (!isPublicRoute(window.location.pathname)) {
+        alert("Sessione scaduta. Effettuare nuovamente il login.");
+        navigate('/login');
+      }
+    };
+    
+    window.addEventListener('sessionExpired', handleSessionExpired);
+    
+    // Check token periodically (every minute)
+    const interval = setInterval(() => {
+      if (!checkToken() && !isPublicRoute(window.location.pathname)) {
+        alert("Sessione scaduta. Effettuare nuovamente il login.");
+        navigate('/login');
+      }
+    }, 60000);
+    
+    return () => {
+      window.removeEventListener('sessionExpired', handleSessionExpired);
+      clearInterval(interval);
+    };
+  }, [navigate]);
+
   // Function for login: expects the backend to return { token, permissions }
   const login = async (username, password) => {
     try {
-      const response = await endpoint.post('/autenticazione/login', { username, password });
+      const response = await endpoint.post('/api/autenticazione/login', { username, password });
       // Assuming the backend returns { token, permissions }
       const { token, permissions } = response.data;
       localStorage.setItem('token', token);
@@ -80,7 +155,7 @@ export const AuthProvider = ({ children }) => {
   // New registration function that posts to /register endpoint
   const register = async (username, password, email) => {
     try {
-      const response = await endpoint.post('/autenticazione/register', { username, password, email });
+      const response = await endpoint.post('/api/autenticazione/register', { username, password, email });
       // Auto-login after successful registration
       const { token, permissions } = response.data;
       localStorage.setItem('token', token);
